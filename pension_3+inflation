@@ -1,0 +1,110 @@
+import openpyxl
+import os
+
+os.chdir('E:\\HFWU\\International Management Semester 1\\Investment and Finance\\result')
+
+filename_1 = input("your_name = ")
+filename = filename_1+".xlsx"
+age = int(input("please input your current age(year) =   "))
+rate = float(input("current interest rate (%)= "))
+pension_age = int(input("pension age : "))
+inflation_rate = float(input("inflation_rate(%) = "))
+
+year_start =  int(input("year_start = "))
+year_end = year_start + pension_age - age
+print("year_end = ", year_end)
+year_contribution = year_end -  year_start
+period_contribution = (year_end - year_start) * 12
+#inflation_rate = int(input("inflation_rate = "))
+
+life_expectation = int(input("life expectation = "))
+total_year_of_received_pension = life_expectation - pension_age
+print ("total_year_of_received_pension = ", total_year_of_received_pension)
+period_of_received_pension = total_year_of_received_pension * 12
+
+
+print("Select operation.")
+print("1.Contribution/month")
+print("2.Pension received/month")
+
+choice = input("Enter choice(1/2): ")
+
+if choice == '1' :
+    inflation_rate_month = inflation_rate / 1200
+    rate_month = (rate / 1200) - inflation_rate_month
+    q_value = 1 + rate_month
+    contribution = int(input("contribution/month = "))
+    future_value = contribution * q_value * ((( q_value**period_contribution) - 1)/ (q_value-1) )
+    monthly_pension_received =  future_value / period_of_received_pension
+    print ("monthly_pension_received = ", monthly_pension_received)
+    print ('period contribution(month) = ', period_contribution)
+    print ("future_value = ", future_value)
+
+elif choice == '2' :
+    monthly_pension_received = int(input("Pension received/month = "))
+    inflation_rate_month = inflation_rate / 1200
+    rate_month = rate / 1200
+    q_value = 1 + rate_month
+    monthly_pension_received_after_inflation = monthly_pension_received*((inflation_rate_month+1)**year_contribution)
+    print("monthly_pension_received_after_inflation = ", monthly_pension_received_after_inflation )
+    future_value = monthly_pension_received_after_inflation*period_of_received_pension
+    contribution = future_value*(q_value-1)/(((q_value**period_contribution)-1)*q_value)
+    print ('contribution/month = ', contribution)
+    print ('period contribution(month) = ', period_contribution)
+    print ("future_value = ", future_value)
+
+else:
+   print("Invalid input")
+
+wb = openpyxl.Workbook()
+sheet = wb.get_sheet_by_name("Sheet")
+sheet['G1'] = 'rate/month'
+sheet['H1'] = rate_month
+sheet['A1'] = "Month"
+sheet['B1'] = "Beginning"
+sheet['C1'] = "Interest"
+sheet['D1'] = "Monthly Contribution"
+sheet['E1'] = "Ending_Balance"
+sheet['A2'] = "0"
+sheet['B2'] = contribution
+sheet['C2'] = '=B2*$H$1'
+sheet['D2'] = contribution
+sheet['E2'] = '=B2+C2+D2'
+sheet['A3'] = "1"
+sheet['B3'] = '=E2'
+sheet['C3'] = '=B3*$H$1'
+sheet['D3'] = contribution
+sheet['E3'] = '=B3+C3+D3'
+
+#def copyRange(2,4, 5, 4, sheet)
+ #   rangeSelected = []
+
+for i in range(2,period_contribution) :
+    sheet.cell(2+i,1).value = 0+i
+    d = str(i+1)
+    sheet.cell(2+i,2).value = '=E'+d
+    f = str(i+2)
+    sheet.cell(2+i,3).value = '=B'+f+'*$H$1'
+    sheet.cell(2+i,4).value = contribution
+    g = str(i+2)
+    sheet.cell(2+i,5).value = '=B'+g+'+C'+g+'+D'+g
+
+
+sheet.cell(2+i,4).value = 0
+
+
+
+
+
+
+
+wb.save(filename)
+
+
+
+
+
+
+
+
+
